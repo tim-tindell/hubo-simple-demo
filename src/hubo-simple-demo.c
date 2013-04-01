@@ -91,6 +91,10 @@ int main(int argc, char **argv) {
        /*       HUBO_LOOP_PERIOD is defigned in hubo.h  */
 
 
+       /* Note2: Hubo-Ach updates the time via the H_sim.time. */
+       /* Set time to simtime */
+       /* H_sim.time = Time from your simulation in seconds*/
+
         /* set your state data to the hubo-ach state data */
         /* Joint pos*/
         for( i = 0; i < HUBO_JOINT_COUNT; i++){
