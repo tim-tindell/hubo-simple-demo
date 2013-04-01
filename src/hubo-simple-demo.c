@@ -124,6 +124,9 @@ int main(int argc, char **argv) {
     /* tell hubo-ach that it can resume.  This is done by giving it the */
     /* from_sim trigger */
 
+        /* Push new state data */
+        ach_put( &chan_hubo_state, &H_state, sizeof(H_state));
+
         /* send the from sim trigger */
         ach_put( &chan_hubo_from_sim, &H_sim, sizeof(H_sim));
 
