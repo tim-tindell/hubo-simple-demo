@@ -4,6 +4,7 @@
 
 /* Required Hubo Headers */
 #include <hubo.h>
+#include <control-daemon.h>
 
 /* For Ach IPC */
 #include <errno.h>
@@ -19,49 +20,56 @@
 
 
 /* Ach Channel IDs */
-ach_channel_t chan_hubo_ref;      // Feed-Forward (Reference)
-ach_channel_t chan_hubo_state;    // Feed-Back (State)
+ach_channel_t chan_hubo_ll;      // left leg
+ach_channel_t chan_hubo_rl;    // right leg
 
 int main(int argc, char **argv) {
 
     /* Open Ach Channel */
-    int r = ach_open(&chan_hubo_ref, HUBO_CHAN_REF_NAME , NULL);
+    int r = ach_open(&chan_hubo_ll, HUBO_CHAN_LL_CTRL_NAME , NULL);
     assert( ACH_OK == r );
 
-    r = ach_open(&chan_hubo_state, HUBO_CHAN_STATE_NAME , NULL);
+    r = ach_open(&chan_hubo_rl, HUBO_CHAN_RL_CTRL_NAME , NULL);
     assert( ACH_OK == r );
 
 
 
     /* Create initial structures to read and write from */
-    struct hubo_ref H_ref;
-    struct hubo_state H_state;
-    memset( &H_ref,   0, sizeof(H_ref));
-    memset( &H_state, 0, sizeof(H_state));
+    struct hubo_leg_control H_ll;
+    struct hubo_leg_control H_rl;
+    memset( &H_ll,   0, sizeof(H_ll));
+    memset( &H_rl, 0, sizeof(H_rl));
 
     /* for size check */
     size_t fs;
 
-    /* Get the current feed-forward (state) */
-    r = ach_get( &chan_hubo_state, &H_state, sizeof(H_state), &fs, NULL, ACH_O_LAST );
+  while(1) {
+    /* Get the current legs */
+    r = ach_get( &chan_hubo_ll, &H_ll, sizeof(H_ll), &fs, NULL, ACH_O_LAST );
     if(ACH_OK != r) {
-        assert( sizeof(H_state) == fs );
+        assert( sizeof(H_ll) == fs );
+    }
+    r = ach_get( &chan_hubo_rl, &H_rl, sizeof(H_rl), &fs, NULL, ACH_O_LAST );
+    if(ACH_OK != r) {
+        assert( sizeof(H_rl) == fs );
+    }
+    
+
+    /* clear screen */
+    printf("\033[2J");
+
+    printf("---- left leg ----");
+    int i = 0;
+    for( i = 0; i < LEG_JOINT_COUNT; i++) {
+        printf(" %f\r\n", H_ll.joint[i].position
     }
 
-    /* Set Left Elbow Bend (LEB) and Right Shoulder Pitch (RSP) to  -0.2 rad and 0.1 rad respectively*/
-    H_ref.ref[LEB] = -0.2;
-    H_ref.ref[RSP] = 0.1;
+    printf("---- right leg ----");
+    for( i = 0; i < LEG_JOINT_COUNT; i++) {
+        printf(" %f\r\n", H_rl.joint[i].position
+    }
+    usleep(10000);
 
-    /* Print out the actual position of the LEB */
-    double posLEB = H_state.joint[LEB].pos;
-    printf("Joint = %f\r\n",posLEB);
-
-    /* Print out the Left foot torque in X */
-    double mxLeftFT = H_state.ft[HUBO_FT_L_FOOT].m_x;
-    printf("Mx = %f\r\n", mxLeftFT);
-
-    /* Write to the feed-forward channel */
-    ach_put( &chan_hubo_ref, &H_ref, sizeof(H_ref));
-
+  }
 }
 
