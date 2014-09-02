@@ -1,4 +1,5 @@
 # This is a change
+# This is also a change
 default: all
 
 CFLAGS := -I./include -g --std=gnu99
