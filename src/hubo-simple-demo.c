@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     /* Move the hips to move the center of gravity over one foot*/
     
     double amount=0;
-    while(amount<0.18){
+    while(amount<0.2){
        H_ref.ref[LHR] = amount;
        H_ref.ref[RHR] = amount;
        H_ref.ref[LAR] = -amount;
@@ -76,17 +76,20 @@ int main(int argc, char **argv) {
        usleep(1000000);
        amount+=0.025;
     }
+    sleep(5);
     printf("Finished Hip Movement\n");
+
     /*Move the left leg into the air*/
-    while(amount<0.55){
+    while(amount<0.8){
        H_ref.ref[LHP] = -amount;
        H_ref.ref[LKN] = 2*amount;
        H_ref.ref[LAP] = -amount;
        /* Write to the feed-forward channel */
        ach_put( &chan_hubo_ref, &H_ref, sizeof(H_ref));
-       usleep(1000000);
+       usleep(2500000);
        amount+=0.025;
     }
+    sleep(15);
     printf("Finished Putting Leg in the Air\n");
     ach_put( &chan_hubo_ref, &H_ref, sizeof(H_ref));
 
@@ -105,7 +108,7 @@ int main(int argc, char **argv) {
           H_ref.ref[RHP] = -amount;
           H_ref.ref[RKN] = 2*amount;
           H_ref.ref[RAP] = -amount;
-          if(amount>=0.4){
+          if(amount>=0.675){
 	      x=1;
       	      printf("Went Down\r\n");
          }
