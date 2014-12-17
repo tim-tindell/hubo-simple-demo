@@ -1,4 +1,4 @@
 hubo-simple-demo
 ================
 
-simple c demmo for hubo
+will wave hand as it moves its one leg up and down
